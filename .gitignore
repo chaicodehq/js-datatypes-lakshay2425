@@ -5,3 +5,4 @@ coverage/
 *.log
 SOLUTION.md
 solutions/
+.vscode/

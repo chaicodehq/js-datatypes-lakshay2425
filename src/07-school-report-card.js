@@ -41,5 +41,55 @@
  *   // => { name: "Priya", totalMarks: 63, percentage: 31.5, grade: "F", ... }
  */
 export function generateReportCard(student) {
-  // Your code here
+  if(!student || typeof student !== 'object') return null
+  const { name, marks } = student
+  if(typeof name !== 'string' || name.trim() === '') return null
+  if(!marks || typeof marks !== 'object' || Object.keys(marks).length === 0) return null
+
+  for (const [subject, mark] of Object.entries(marks)) {
+    if (typeof mark !== 'number' || mark < 0 || mark > 100) {
+      return null
+    }
+  }
+  const { totalMarks, highestSubject, lowestSubject, passedSubjects, failedSubjects } = Object.entries(marks).reduce((acc, [subject, mark]) => {
+    acc.totalMarks += mark;
+    if (mark > acc.highestMark) {
+      acc.highestMark = mark;
+      acc.highestSubject = subject;
+    }
+    if (mark < acc.lowestMark) {
+      acc.lowestMark = mark;
+      acc.lowestSubject = subject;
+    }
+    if (mark >= 40) {
+      acc.passedSubjects.push(subject);
+    } else {
+      acc.failedSubjects.push(subject);
+    }
+    return acc;
+  }, { totalMarks: 0, highestMark: -Infinity, lowestMark: Infinity, highestSubject: '', lowestSubject: '', passedSubjects: [], failedSubjects: [] });
+
+  const percentage = parseFloat((totalMarks / (Object.keys(marks).length * 100) * 100).toFixed(2));
+  let grade;
+  switch(true){
+    case percentage >= 90:
+      grade = 'A+';
+      break;
+    case percentage >= 80:
+      grade = 'A';
+      break;
+    case percentage >= 70:
+      grade = 'B';
+      break;
+    case percentage >= 60:
+      grade = 'C';
+      break;
+    case percentage >= 40:
+      grade = 'D';
+      break;
+    default:
+      grade = 'F';
+  }
+
+  return { name, totalMarks, percentage, grade, highestSubject, lowestSubject, passedSubjects, failedSubjects, subjectCount: Object.keys(marks).length };
 }

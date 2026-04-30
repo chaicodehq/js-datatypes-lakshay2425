@@ -62,5 +62,58 @@
  *   // => { isValid: false, errors: { name: "...", email: "...", ... } }
  */
 export function validateForm(formData) {
-  // Your code here
+  const errors = {};
+  const data = formData ?? {};
+
+  const name = typeof data.name === "string" ? data.name.trim() : "";
+  if (name.length < 2 || name.length > 50) {
+    errors.name = "Name must be 2-50 characters";
+  }
+
+  const email = data.email;
+  const atIndex = typeof email === "string" ? email.indexOf("@") : -1;
+  const lastAtIndex = typeof email === "string" ? email.lastIndexOf("@") : -1;
+  const hasDotAfterAt = typeof email === "string" && email.slice(atIndex + 1).includes(".");
+  if (typeof email !== "string" || atIndex === -1 || atIndex !== lastAtIndex || !hasDotAfterAt) {
+    errors.email = "Invalid email format";
+  }
+
+  const phone = data.phone;
+  const phoneStartsValid = typeof phone === "string" && "6789".includes(phone[0]);
+  const phoneDigitsOnly = typeof phone === "string"
+    && phone.split("").every(char => char >= "0" && char <= "9");
+  if (typeof phone !== "string" || phone.length !== 10 || !phoneStartsValid || !phoneDigitsOnly) {
+    errors.phone = "Invalid Indian phone number";
+  }
+
+  const age = typeof data.age === "string" ? parseInt(data.age) : data.age;
+  if (!Number.isInteger(age) || age < 16 || age > 100) {
+    errors.age = "Age must be an integer between 16 and 100";
+  }
+
+  const pincode = data.pincode;
+  const pincodeDigitsOnly = typeof pincode === "string"
+    && pincode.split("").every(char => char >= "0" && char <= "9");
+  if (
+    typeof pincode !== "string"
+    || pincode.length !== 6
+    || pincode.startsWith("0")
+    || !pincodeDigitsOnly
+  ) {
+    errors.pincode = "Invalid Indian pincode";
+  }
+
+  const state = data?.state ?? "";
+  if (typeof state !== "string" || state.trim().length === 0) {
+    errors.state = "State is required";
+  }
+
+  if (Boolean(data.agreeTerms) !== true) {
+    errors.agreeTerms = "Must agree to terms";
+  }
+
+  return {
+    isValid: Object.keys(errors).length === 0,
+    errors
+  };
 }
